@@ -13,3 +13,8 @@ https://releases.linaro.org/components/toolchain/binaries/
 介绍imx（这篇很重要）：https://blog.csdn.net/zhaoyun_zzz/article/details/84990606\
 
 重定位是什么？
+
+
+Linux的启动地址是如何确定的？
+1. iminfo：0x82000000 该值是默认值，可以再Kconfig中看到
+2. armv7的_start在vectors.S中
