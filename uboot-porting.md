@@ -18,3 +18,6 @@ https://releases.linaro.org/components/toolchain/binaries/
 Linux的启动地址是如何确定的？
 1. iminfo：0x82000000 该值是默认值，可以再Kconfig中看到
 2. armv7的_start在vectors.S中
+
+为了查看emmc的分区，我们先用tftp启动linux：https://zhuanlan.zhihu.com/p/556094760
+发现uboot以太网不通: https://blog.csdn.net/Wang_XB_3434/article/details/130817581?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-130817581-blog-128525475.235%5Ev38%5Epc_relevant_sort_base1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-130817581-blog-128525475.235%5Ev38%5Epc_relevant_sort_base1&utm_relevant_index=2
