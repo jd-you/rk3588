@@ -20,22 +20,22 @@ make distclean
 make mx6ull_14x14_evk_defconfig
 make -j8
 ```
-编译得到
+编译得到\
 ![Alt text](images\image.png)
-
-![Alt text](image.png)
 ## 添加自己的板子
-1. 复制`mx6ull_14x14_evk_defconfig`到当前文件夹`my_mx6ull_14x14_evk_defconfig`。然后修改其中的宏：
-    * [CONFIG_TARGET_MY_MX6ULL_14X14_EVK](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-fca5fb0cb6ce1dc6406b6e93f7ea35efac236f134d7d97acfffa719ec632902bR10)：在Kconfig中会有这个Config的定义
-    * [CONFIG_DEFAULT_DEVICE_TREE](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-fca5fb0cb6ce1dc6406b6e93f7ea35efac236f134d7d97acfffa719ec632902bR12)：会使用相应名字的设备树文件
-
-2. [Kconfig](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-b7fa3c1f40ebfb1cd19ca01e142daf0392bce0e7fdf69c630b58aae868b2c06aR463)：按照原来板子的配置复制即可
+[linux驱动之系统移植-----官方uboot添加自定义板子](https://blog.csdn.net/qq_40684669/article/details/128428623)
 
 ## 根据硬件修改配置
 设备树里主要定义的引脚相关的信息，我们需要将原理图和设备树对应起来。可以看到，我们仅需修改`ENET_MDIO`、`ENET_MDC`、`SNVS_TAMPER9`三个管脚。
-1. 首先是修改管脚复用
-2. 设置复位管脚和工作方式，这是原先的设备树里所没有的
-3. 修改PHY地址
+1. 首先是修改管脚复用，查看硬件原理图：
+![原理图](images/eth_pin.png)
+将原理图中的引脚和现有设备树中引脚比对，发现有三个引脚需要修改，分别为`ENET_MDIO`、`ENET_MDC`、`SNVS_TAMPER9`。其中`ENET_MDIO`、`ENET_MDC`比较好办，原理图中直接标明了它们是由哪个引脚mux来的：\
+![`ENET_MDIO`、`ENET_MDC`](images/ENET_MDXX_MUX.png)\
+于是我们在设备树中添加[配置](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-f7b1aa2dc58bd89ff34eee941be9d34a338679e86fb542a7d1997e30ae25b04cR419-R420)，将GPIO1-6和GPIO1-7复用为`ENET_MDIO`和`ENET_MDC`。接着是`SNVS_TAMPER9`管脚，这个管脚对应的GPIO管脚在原理图中找不到，我们直接到芯片手册中查找：
+![芯片手册mux](images/REST_IO_MUX.png)\
+`SNVS_TAMPER9`对应的是GPIO5-9，所以在设备树中添加下列[配置](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-f7b1aa2dc58bd89ff34eee941be9d34a338679e86fb542a7d1997e30ae25b04cR429)。
+2. 第二步需要根据实际使用的ETH口，将[`fec2` Disable掉](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-f7b1aa2dc58bd89ff34eee941be9d34a338679e86fb542a7d1997e30ae25b04cR195)，同时[Enable `fec1`](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-f7b1aa2dc58bd89ff34eee941be9d34a338679e86fb542a7d1997e30ae25b04cR186)。此外，我们需要给`fec`[新增复位属性](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-f7b1aa2dc58bd89ff34eee941be9d34a338679e86fb542a7d1997e30ae25b04cR184-R185)。最后，根据`PHYAD0`管脚的上下拉状态，确定phy addr。在我们的板子上，由于管脚是下拉的，所以phy addr为0，相应的[配置](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-f7b1aa2dc58bd89ff34eee941be9d34a338679e86fb542a7d1997e30ae25b04cR201-R203)。
+3. 最后一步，是网上很多教程中都没有做的一步，就是[修改Config头文件](https://github.com/u-boot/u-boot/compare/master...jd-you:u-boot:port_uboot?diff=unified#diff-393a070827ce3f7e6aa14877dc2f29414c9b555b23e9eaa1239a697fb6d4afcaR112)。由于我们用的设备是ETH0，所以应将此配置修改为0。否则网卡无法正常驱动。
 
 修改完成后，可以发现ETH仍然不通，经过走读代码发现，在`include/configs/my_mx6ullevk.h`中需要将`CFG_FEC_ENET_DEV`修改为0，因为我们用了ETH1。
 
