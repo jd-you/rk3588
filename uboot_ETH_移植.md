@@ -21,7 +21,7 @@ make mx6ull_14x14_evk_defconfig
 make -j8
 ```
 编译得到\
-![Alt text](images\image.png)
+![Alt text](images/image.png)
 ## 添加自己的板子
 [linux驱动之系统移植-----官方uboot添加自定义板子](https://blog.csdn.net/qq_40684669/article/details/128428623)
 
