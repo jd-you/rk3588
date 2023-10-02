@@ -122,6 +122,10 @@ uboot启动命令的解析：https://blog.csdn.net/xxxx123041/article/details/11
 [使用busybox构建根文件系统以及过程中遇到的问题](https://blog.csdn.net/u013171226/article/details/129437616)\
 
 [uboot下使用nfs网络下载kernel](https://blog.csdn.net/qq_42212668/article/details/125250873)
+```
+mkdir dev lib etc proc sys //创建必要的系统目录。
+mkdir home tmp var mnt //创建可选的目录
+```
 ### NFS
 在u-boot下使用nfs时发现如下错误
 ```
@@ -180,6 +184,34 @@ setenv bootargs 'console=ttymxc0,115200 root=/dev/nfs nfsroot=192.168.2.4:/home/
 ```
 
 ```
-tftp 0x82000000 zImage; tftp 0x83000000 100ask_myir_imx6ull_mini.dtb; bootz 0x82000000 - 0x83000000
+tftp 0x82000000 zImage; tftp 0x83000000 100ask_imx6ull_mini.dtb; bootz 0x82000000 - 0x83000000
 ```
 [制作最小根文件系统使用NFS挂载、烧写至EMMC两种方式](https://blog.csdn.net/weixin_43937576/article/details/109291816)
+
+### NFS挂载文件系统，启动Linux后查看EMMC的分区内容
+Linux启动后，`/dev`中没有emmc设备，无法查看上面的内容。怀疑是设备树的问题，编译原生SDK的设备树：
+```
+~/100ask_imx6ull_mini-sdk$ cd Linux-4.9.88
+~/100ask_imx6ull_mini-sdk/Linux-4.9.88$ make mrproper
+~/100ask_imx6ull_mini-sdk/Linux-4.9.88$ make 100ask_imx6ull_mini_defconfig
+~/100ask_imx6ull_mini-sdk/Linux-4.9.88$ make zImage -jN
+~/100ask_imx6ull_mini-sdk/Linux-4.9.88$ make dtbs
+~/100ask_imx6ull_mini-sdk/Linux-4.9.88$ cd ~/100ask_imx6ull_mini-sdk/Linux-4.9.88/arch/arm/boot/dts
+```
+[ARM嵌入式——制作根文件系统并使用NFS挂载运行。](https://blog.51cto.com/u_6043682/3705038)\
+[Linux和Uboot下eMMC boot分区读写](https://huaweicloud.csdn.net/635665dcd3efff3090b5d32b.html?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Eactivity-1-123995925-blog-80936361.235%5Ev38%5Epc_relevant_default_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Eactivity-1-123995925-blog-80936361.235%5Ev38%5Epc_relevant_default_base3&utm_relevant_index=2)\
+[【uboot】MMC的代码分布](https://forums.100ask.net/t/topic/1217)\
+[U-Boot命令之FAT 格式文件系统操作命令](https://blog.csdn.net/weixin_45309916/article/details/109185273)\
+[U-Boot命令之EXT 格式文件系统操作命令](https://blog.csdn.net/weixin_45309916/article/details/109185736)\
+[uboot命令使用学习（5）](https://blog.csdn.net/qq_41545736/article/details/125090606)
+[IMX6ULL uboot命令](https://blog.csdn.net/weixin_45309916/category_10274949.html)
+## Others
+### 解压缩
+解压tar.gz文件
+```
+tar -zxvf ×××.tar.gz
+```
+解压tar.bz2文件
+```
+tar -jxvf ×××.tar.bz2
+```
